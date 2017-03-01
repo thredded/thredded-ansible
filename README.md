@@ -11,7 +11,8 @@ There are two playbooks included: `provision.yml` and `deploy.yml`.
 ### Provisioning
 
 The provisioning playbook is run as a user with password-less `sudo` access.
-It ensures the following:
+
+This playbook ensures the following:
 
 * System-wide dependencies are installed and up-to-date.
 * The Postgresql database server is set up and has a user for the app.
@@ -24,13 +25,14 @@ It ensures the following:
 ### Deployment
 
 The deployment playbook is run as the app-specific user.
-It ensures the following:
+
+This playbook ensures the following:
 
 * The configured Ruby version is installed (via `rbenv`).
 * The app's environment variables are up to date (set in `~/.pam_envinoment`).
 
-It the fetches the Rails app code from the configured git repository,
-compiles the assets, runs the migrations, and restart the app services.
+The playbook then fetches the Rails app code from the configured git repository,
+compiles the assets, runs the migrations, and restarts the app services.
 
 ### App compatibility
 
@@ -158,7 +160,7 @@ You can ssh into the VM instance on port 2222:
 ```bash
 # As the app user
 ssh $APP@127.0.0.1 -p2222
-# As the "ubuntu" user (that can run sudo without a password
+# As the "ubuntu" user (this user can run sudo without a password)
 ssh ubuntu@127.0.0.1 -p2222 -i .vagrant/machines/vm1/virtualbox/private_key
 ```
 
@@ -174,6 +176,6 @@ pass the `-vvv` flag to `ansible` or `ansible-playbook`.
 
 ## Credits
 
-The Rails deployment role is based on: https://github.com/nicolai86/ansible-rails-deployment
-Rbenv installation is based on: https://github.com/erasme/ansible-rbenv
-The Nginx role is based on: https://github.com/jdauphant/ansible-role-nginx
+* The Rails deployment role is based on: https://github.com/nicolai86/ansible-rails-deployment.
+* Rbenv installation is based on: https://github.com/erasme/ansible-rbenv.
+* The Nginx role is based on: https://github.com/jdauphant/ansible-role-nginx.
