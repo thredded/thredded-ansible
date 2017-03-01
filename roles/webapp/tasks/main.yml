@@ -1,7 +1,7 @@
 - name: create {{app_user}} user
   user:
     name: "{{app_user}}"
-    comment: "{{ app_name}} app user"
+    comment: "{{app_name}} app user"
     generate_ssh_key: yes
     password: "{{app_user_password}}"
     shell: /bin/bash

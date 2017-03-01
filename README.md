@@ -22,12 +22,12 @@ There are two playbooks included: `provision.yml` and `deploy.yml`.
 
 ### Provisioning
 
-The provisioning playbook is run as a user with password-less `sudo` access.
+The provisioning playbook must be run as a user with password-less `sudo` access.
 
 This playbook ensures the following:
 
 Via the `webapp` role:
-* System-wide dependencies are installed and up-to-date.
+* System-wide dependencies are installed and are up-to-date.
 * The app-specific user exists.
 * The app directory (`/var/www/$APP` by default) exists and belongs to the
   app-specific user.
@@ -116,7 +116,7 @@ Now, add the app user SSH key to the app's Git repository deploy keys.
 1. Print the key with:
 
     ```bash
-    ansible all -u $APP -a 'cat ~/.ssh/id_rsa.pub'
+    ansible webservers -u $APP -a 'cat ~/.ssh/id_rsa.pub'
     ```
 
 2.  Add the key to the deploy keys in your repository settings.
