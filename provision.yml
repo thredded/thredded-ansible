@@ -1,5 +1,4 @@
-# Run as a remote user with sudo access.
-
+# Run this playbook as a remote user with passwordless sudo access.
 - hosts: webservers
   vars_files:
   - vars/defaults.yml

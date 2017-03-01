@@ -1,3 +1,4 @@
+# Run this playbook as the app-specific remote user
 - hosts: webservers
   vars_files:
     - vars/defaults.yml
@@ -11,5 +12,3 @@
     compile_assets: yes
   vars:
     ruby_version: "{{app_ruby_version}}"
-
-
