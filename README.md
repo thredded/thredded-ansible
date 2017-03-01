@@ -87,7 +87,8 @@ Then, **provision** the VM instance:
 ansible-playbook provision.yml -e "app_name=$APP" -u ubuntu --private-key=.vagrant/machines/vm1/virtualbox/private_key
 ```
 
-*If you get an SSH error, verify that you can [SSH into the host](#tips)*.
+*If you get an SSH error, verify that you can
+[SSH into the host as the `ubuntu` user](#tips)*.
 
 Now, add the app user SSH key to the app's Git repository deploy keys.
 
@@ -131,10 +132,11 @@ Congratulations! You can now open the app at http://localhost:8080 and log in as
 
 ### See the logs
 
-The logs are located at `/var/www/$APP/shared/log`.
-The app service output is logged to `/var/log/syslog`.
+The application and webserver logs are located at `/var/www/$APP/shared/log`.
+The app service output (such as errors when starting the services)
+is logged to `/var/log/syslog`.
 
-### Update app environment variable
+### Update app environment variables
 
 Update the `vars/$APP.yml` file and either do a full deploy, or run:
 
@@ -158,10 +160,10 @@ ssh $APP@127.0.0.1 -l -c 'cd /var/www/
 You can ssh into the VM instance on port 2222:
 
 ```bash
-# As the app user
-ssh $APP@127.0.0.1 -p2222
 # As the "ubuntu" user (this user can run sudo without a password)
 ssh ubuntu@127.0.0.1 -p2222 -i .vagrant/machines/vm1/virtualbox/private_key
+# As the app user
+ssh $APP@127.0.0.1 -p2222
 ```
 
 You can run a command as the web user via ansible like this:
