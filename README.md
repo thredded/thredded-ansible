@@ -8,6 +8,14 @@ for deploying a Thredded app to an Ubuntu 16.04 server.
 The playbooks have only been tested on a VM. They provide a good starting
 point if you're looking to deploy Thredded to a VPS or to a bare-metal server.
 
+TODO:
+
+1. Backups via [backup](https://github.com/backup/backup).
+2. Memcached.
+3. Fail if nginx config is invalid.
+4. nginx SSL template.
+5. VPS/bare-metal instructions.
+
 ## Overview
 
 There are two playbooks included: `provision.yml` and `deploy.yml`.
