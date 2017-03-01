@@ -164,8 +164,8 @@ remove it from the environment file on the server (`~$APP/.pam_environment`).
 
 ### Open a `rails console` on a production server
 
-```
-ssh $APP@127.0.0.1 -l -c 'cd /var/www/
+```bash
+ssh $APP@127.0.0.1 -p 2222 -t "cd /var/www/$APP/current && bundle exec rails c"
 ```
 
 #### Tips
