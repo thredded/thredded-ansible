@@ -1,8 +1,9 @@
-# All-in-one Ansible Playbooks for running a Thredded App on Ubuntu 16.04
+# Ansible Playbooks for running a Thredded App on Ubuntu 16.04
 
-This is a starter set of playbooks for provision and deploying a Thredded app.
+This is a starter set of [Ansible] playbooks for provision and deploying
+a Thredded app.
 
-**Warning: Experimental work-in-progress, there be dragons.**
+**Warning: Experimental, there be dragons.**
 
 ## Overview
 
@@ -14,19 +15,28 @@ The provisioning playbook is run as a user with password-less `sudo` access.
 
 This playbook ensures the following:
 
+Via the `webapp` role:
 * System-wide dependencies are installed and up-to-date.
+* The app-specific user exists.
+* The app directory (`/var/www/$APP` by default) exists and belongs to the
+  app-specific user.
+
+Via the `db` role:
 * The Postgresql database server is set up and has a user for the app.
+
+Via the `nginx` role:
 * The nginx webserver is set up and the app's site configuration is up to date.
-* The app-specific user exists and has permissions to manage app services.
+
+Via the `foreman_systemd` role:
 * The app services are managed by `systemd` and their configuration
   is exported via [foreman](http://ddollar.github.io/foreman/) from `files/Procfile`.
-* The app user is granted permissions to start and stop the app services.
+* The app-specific user has permissions to start and stop app services.
 
 ### Deployment
 
 The deployment playbook is run as the app-specific user.
 
-This playbook ensures the following:
+This playbook ensures the following via the `deploy-rails` role:
 
 * The configured Ruby version is installed (via `rbenv`).
 * The app's environment variables are up to date (set in `~/.pam_envinoment`).
