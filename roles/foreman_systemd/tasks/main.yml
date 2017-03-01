@@ -1,0 +1,23 @@
+- name: ensure foreman gem is installed
+  gem:
+    name: foreman
+    version: 0.83.0
+    state: present
+    user_install: no
+  become: true
+
+- name: ensure foreman config is the latest
+  template: src={{foreman_procfile_template}} dest={{foreman_procfile}}
+  notify:
+  - export foreman config
+
+- name: ensure {{app_user}} is allowed to restart its foreman-exported services
+  lineinfile:
+    dest: /etc/sudoers
+    line: '{{item}}'
+    validate: '/usr/sbin/visudo -cf %s'
+  become: true
+  with_items:
+  - '{{foreman_user}} ALL=NOPASSWD: /bin/systemctl restart {{foreman_app}}.target'
+  - '{{foreman_user}} ALL=NOPASSWD: /bin/systemctl start {{foreman_app}}.target'
+  - '{{foreman_user}} ALL=NOPASSWD: /bin/systemctl stop {{foreman_app}}.target'

@@ -1,0 +1,24 @@
+- name: restart nginx
+  debug: msg='checking before restart'
+  changed_when: yes
+  notify:
+  - check nginx configuration
+  - restart nginx - after config check
+
+- name: restart nginx - after config check
+  service: name=nginx state=restarted
+
+- name: reload nginx
+  debug: msg='checking before reload'
+  changed_when: yes
+  notify:
+  - check nginx configuration
+  - reload nginx - after config check
+
+- name: reload nginx - after config check
+  service: name=nginx state=reloaded
+
+- name: check nginx configuration
+  command: nginx -t -c /etc/nginx/nginx.conf
+  register: result
+  changed_when: "result.rc != 0"

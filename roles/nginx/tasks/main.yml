@@ -1,0 +1,25 @@
+- name: ensure nginx latest is installed
+  apt: name=nginx state=latest update_cache=yes cache_valid_time=3600
+  notify:
+  - restart nginx
+
+- name: ensure the default nginx site config is absent
+  file: path=/etc/nginx/sites-enabled/default state=absent
+  become: yes
+
+- name: ensure nginx sites exist in sites-available
+  template:
+    src: "{{item.template}}"
+    dest: "/etc/nginx/sites-available/{{item.name}}.conf"
+  with_items: "{{nginx_sites}}"
+  notify:
+  - reload nginx
+
+- name: ensure nginx sites are linked in sites-enabled
+  file:
+    state: link
+    src: "/etc/nginx/sites-available/{{item.name}}.conf"
+    dest: "/etc/nginx/sites-enabled/{{item.name}}.conf"
+  with_items: "{{nginx_sites}}"
+  notify:
+  - reload nginx

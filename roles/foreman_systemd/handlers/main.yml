@@ -1,0 +1,17 @@
+- name: export foreman config
+  command: >
+    foreman export systemd /etc/systemd/system
+      --app="{{foreman_app|quote}}"
+      --log="{{foreman_log|quote}}"
+      --user="{{foreman_user|quote}}"
+      --root="{{foreman_root|quote}}"
+      --procfile="{{foreman_procfile|quote}}"
+  changed_when: yes
+  become: yes
+  notify:
+  - reload systemd
+
+- name: reload systemd
+  command: systemctl daemon-reload
+  become: true
+  changed_when: yes

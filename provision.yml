@@ -1,0 +1,29 @@
+# Run as a remote user with sudo access.
+
+- hosts: webservers
+  vars_files:
+  - vars/defaults.yml
+  - vars/{{app_name}}.yml
+  become: true
+  roles:
+  - webapp
+  - role: nginx
+    nginx_sites:
+    - template: "{{app_nginx_template}}"
+      name: "{{app_nginx_name}}"
+  - role: foreman_systemd
+    foreman_procfile_template: "{{app_procfile_template}}"
+    foreman_procfile: "{{app_dir}}/shared/Procfile"
+    # See http://ddollar.github.io/foreman/
+    foreman_app: "{{app_name}}"
+    foreman_user: "{{app_user}}"
+    foreman_root: "{{app_dir}}/current"
+    foreman_log: "{{app_dir}}/log/foreman"
+
+- hosts: db
+  vars_files:
+  - vars/defaults.yml
+  - vars/{{app_name}}.yml
+  become: true
+  roles:
+  - db

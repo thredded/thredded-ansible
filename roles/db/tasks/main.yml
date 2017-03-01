@@ -1,0 +1,33 @@
+- name: install the database packages
+  apt:
+    name: "{{item}}"
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  with_items:
+  - postgresql-9.5
+  - postgresql-contrib-9.5
+  # Required by the postgresql_* Ansible tasks:
+  - libpq-dev
+  - python3-psycopg2
+
+- name: install postgresql extensions
+  postgresql_ext:
+    name: "{{item}}"
+    db: template1
+  with_items:
+  - citext
+  become_user: postgres
+
+- name: ensure the {{db_name}} database is created
+  postgresql_db: name={{db_name}}
+  become_user: postgres
+
+- name: ensure the {{db_user}} database user is created and has full access to the {{db_name}} database
+  postgresql_user:
+    name: "{{db_user}}"
+    password: "{{db_user_password}}"
+    db: "{{db_name}}"
+    priv: all
+    encrypted: true
+  become_user: postgres

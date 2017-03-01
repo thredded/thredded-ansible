@@ -1,0 +1,15 @@
+- hosts: webservers
+  vars_files:
+    - vars/defaults.yml
+    - vars/{{app_name}}.yml
+  remote_user: "{{app_user}}"
+  roles:
+  - role: deploy-rails
+    repo: "{{app_repo_url}}"
+    branch: "{{app_repo_branch}}"
+    migrate: yes
+    compile_assets: yes
+  vars:
+    ruby_version: "{{app_ruby_version}}"
+
+

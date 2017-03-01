@@ -1,0 +1,14 @@
+app_user: "{{app_name}}"
+app_dir: "/var/www/{{app_name}}"
+app_repo_branch: master
+app_ruby_version: 2.4.0
+
+app_nginx_name: "{{app_name}}"
+app_host: null
+
+app_procfile_template: files/Procfile.jinja2
+app_nginx_template: files/webapp-nossl.jinja2.nginx
+
+db_name: "{{app_name}}"
+db_user: "{{app_name}}_prod"
+db_host: 127.0.0.1

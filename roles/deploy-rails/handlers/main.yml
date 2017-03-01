@@ -1,0 +1,2 @@
+- name: restart rails app
+  raw: sudo /bin/systemctl restart {{app_name}}.target

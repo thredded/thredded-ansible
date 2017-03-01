@@ -1,0 +1,83 @@
+- include: pam-environment.yml
+- include: rbenv-ruby.yml
+  vars:
+    ruby_version: "{{app_ruby_version}}"
+    ruby_makeopts: '-j $(getconf _NPROCESSORS_ONLN)'
+
+- name: create {{app_name}} Rails app directories shared across versions
+  file:
+    dest: "{{shared_dir}}/{{item}}"
+    state: directory
+    mode: 0755
+  with_items: "{{linked_dirs}}"
+
+- name: Create the build directory for this deployment {{build_dir}}
+  file:
+    path: "{{item}}"
+    state: "directory"
+    mode: 0755
+  with_items:
+    - "{{build_dir}}"
+    - "{{build_dir}}/tmp"
+    - "{{build_dir}}/vendor"
+    - "{{build_dir}}/public"
+
+- name: Create or update the Git repository
+  git:
+    repo: "{{app_repo_url}}"
+    dest: "{{shared_dir}}/repo"
+    version: "{{app_repo_branch}}"
+    bare: yes
+    update: yes
+    accept_hostkey: yes
+
+- name: Copy the code to {{build_dir}}
+  shell: git archive {{app_repo_branch}} | tar -x -C {{build_dir}}
+  args:
+    chdir: "{{shared_dir}}/repo"
+
+- name: Ensure the directories that will be symlinked are absent
+  file:
+    dest: "{{build_dir}}/{{item}}"
+    state: absent
+  with_items: "{{linked_dirs}}"
+
+- name: Symlink shared directories to {{build_dir}}
+  file:
+    src: "{{shared_dir}}/{{item}}"
+    dest: "{{build_dir}}/{{item}}"
+    state: link
+    force: yes
+  with_items: "{{linked_dirs}}"
+
+- name: Run Bundler
+  command: bundle install -j2 --path {{bundle_dir|quote}} --deployment --without development test
+  register: bundler_out
+  changed_when: "'Installing' in bundler_out or 'Updating' in bundler_out or 'upgrade' in bundler_out"
+  args:
+    chdir: "{{build_dir}}"
+
+- name: Compile the assets
+  command: bundle exec rails assets:precompile
+  args:
+    chdir: "{{build_dir}}"
+
+
+- name: Run migrations
+  command: bundle exec rails db:migrate
+  when: inventory_hostname == ansible_play_hosts[0]
+  args:
+    chdir: "{{build_dir}}"
+
+- name: Symlink {{build_dir}} to {{app_dir}}/current
+  file:
+    src: "{{build_dir}}"
+    dest: "{{app_dir}}/current"
+    state: link
+    force: yes
+  notify: restart rails app
+
+- name: cleanup old releases
+  shell: "ls -1d [0-9]* | sort -rn | tail -n $((`ls -1d [0-9]* | sort -rn | wc -l` > {{keep_releases}} ? `ls -1d [0-9]* | sort -rn | wc -l` - {{keep_releases}} : 0)) | xargs rm -rf {}"
+  args:
+    chdir: "{{app_dir}}/versions"

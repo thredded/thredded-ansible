@@ -1,0 +1,55 @@
+- name: Install rbenv
+  git:
+    repo: https://github.com/sstephenson/rbenv.git
+    dest: "~/.rbenv"
+    accept_hostkey: true
+
+- name: Ensure fragments bash dir exists
+  file:
+    dest: "~/.bash.d/"
+    state: directory
+
+- name: Install rbenv bash file
+  copy:
+    src: 50_rbenv.bash
+    dest: "~/.bash.d/50_rbenv.bash"
+    mode: 0700
+
+- name: Source rbenv bash file in ~/.bashrc
+  lineinfile:
+    dest: "~/.bashrc"
+    line: "source ~/.bash.d/50_rbenv.bash"
+    insertbefore: BOF
+
+- name: Create plugin directory
+  file:
+    path: "~/.rbenv/plugins/"
+    mode: 0755
+    state: directory
+
+- name: Ensure ruby-build is installed
+  git:
+    repo: git://github.com/sstephenson/ruby-build.git
+    dest: ~/.rbenv/plugins/ruby-build
+    accept_hostkey: true
+
+- name: Check if target ruby is installed
+  shell: cd; bash -lc "rbenv versions --bare | grep {{ruby_version}} | xargs echo -n"
+  register: ruby_is_installed
+  changed_when: ruby_is_installed.stdout != ruby_version
+
+- name: Ensure ruby {{ruby_version}} is installed
+  shell: cd; bash -lc 'MAKEOPTS="{{ruby_makeopts}}" CONFIGURE_OPTS="--disable-install-rdoc" rbenv install {{ruby_version}}'
+  when: ruby_is_installed.stdout != ruby_version
+  # 30 minutes to compile ruby from source should be enough for any machine / VM
+  async: 1650
+  poll: 3
+
+- name: Ensure the bundler gem is installed for the new ruby
+  shell: cd; bash -lc "rbenv local {{ruby_version}} && gem install bundler"
+  when: ruby_is_installed.stdout != ruby_version
+  register: new_ruby_installed
+
+- name: Set global rbenv version
+  shell: cd; bash -lc "rbenv global {{ruby_version}}"
+  when: new_ruby_installed|changed

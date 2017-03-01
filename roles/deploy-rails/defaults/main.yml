@@ -1,0 +1,18 @@
+shared_dir: "{{app_dir}}/shared"
+build_dir: "{{app_dir}}/versions/{{ansible_date_time.iso8601_micro | regex_replace(':', '_')}}"
+bundle_dir: "vendor/bundle"
+linked_dirs:
+- "{{bundle_dir}}"
+- public/assets
+- tmp/cache
+- tmp/pids
+- tmp/sockets
+- log
+# Keep only the last 5 releases
+keep_releases: 5
+app_user_env_defaults:
+  DATABASE_URL: "postgresql://{{db_user}}:{{db_user_password|urlencode}}@{{db_host}}/{{db_name}}"
+  RACK_ENV: production
+  RAILS_ENV: production
+  ANSIBLE_PROVISIONED: true
+  APP_DIR: "{{app_dir}}"

@@ -1,0 +1,12 @@
+# Rails app codebase repository
+app_repo_url: "[SET ME] git@gitlab.com:user/app.git"
+
+# You can generate long random strings with:
+# cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1
+
+app_user_password: "[SET ME] the app Linux user password"
+db_user_password: "[SET ME] the app Postgres user password"
+
+app_user_env:
+  SECRET_KEY_BASE: "[SET ME] a long random string"
+  # Add other env variables here and they'll be made available to the app

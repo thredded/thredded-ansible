@@ -1,0 +1,20 @@
+- name: set user environment variables in ~{{app_user}}/.pam_environment
+  lineinfile:
+    dest:   "~/.pam_environment"
+    regexp: "^{{item.key}}="
+    line:   "{{item.key}}={{item.value}}"
+    create: yes
+    mode:   0600
+  with_dict: "{{app_user_env_defaults|combine(app_user_env)}}"
+  tags:
+  - env
+  register: pam_environment_update_task
+  notify:
+  - restart rails app
+
+- name: SSH reconnect after ~/.pam_environment update, so that the environment is up-to-date in the subsequent commands
+  shell: sleep 1; pkill -u {{ansible_ssh_user|quote}} sshd
+  async: 3
+  poll: 2
+  when: pam_environment_update_task | changed
+
