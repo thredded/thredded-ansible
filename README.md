@@ -20,7 +20,7 @@ TODO:
    * [Deployment](#deployment)
    * [App compatibility](#app-compatibility)
 * [Usage](#usage)
-* [VirtualBox installation](#virtualbox-installation)
+* [Deploying to VirtualBox](#deploying-to-virtualbox)
 * [Deploying to production](#deploying-to-production)
    * [Adding the server to the hosts inventory](#adding-the-server-to-the-hosts-inventory)
    * [Creating a user for provisioning](#creating-a-user-for-provisioning)
@@ -113,11 +113,11 @@ Finally, see the section below to try out your setup in a VM.
 Once you've confirmed it's working in a VM, you can proceed to set up and deploy
 to a real server or a VPS. **The Readme section for this is not ready yet.**
 
-## VirtualBox installation
+## Deploying to VirtualBox
 
 First, install VirtualBox v5.0+ and Vagrant v1.9+.
 
-First, create a new instance with:
+Then, create a new instance with:
 
 ```bash
 vagrant up
