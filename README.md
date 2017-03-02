@@ -13,6 +13,30 @@ TODO:
 1. Memcached.
 2. Production setup: HTTPS, email via postfix, backups via [backup](https://github.com/backup/backup).
 
+## Table of Contents
+
+* [Overview](#overview)
+   * [Provisioning](#provisioning)
+   * [Deployment](#deployment)
+   * [App compatibility](#app-compatibility)
+* [Usage](#usage)
+* [VirtualBox installation](#virtualbox-installation)
+* [Deploying to production](#deploying-to-production)
+   * [Adding the server to the hosts inventory](#adding-the-server-to-the-hosts-inventory)
+   * [Creating a user for provisioning](#creating-a-user-for-provisioning)
+   * [Provisioning](#provisioning-1)
+   * [Deploying](#deploying)
+   * [Configure HTTPS](#configure-https)
+   * [Enable backups](#enable-backups)
+   * [Configure postfix](#configure-postfix)
+* [How to](#how-to)
+   * [Deploy a new version of the app to the production server](#deploy-a-new-version-of-the-app-to-the-production-server)
+   * [Update the app's environment variables](#update-the-apps-environment-variables)
+   * [See the logs](#see-the-logs)
+   * [Open a rails console on a production server](#open-a-rails-console-on-a-production-server)
+      * [Tips](#tips)
+* [Credits](#credits)
+
 ## Overview
 
 There are two playbooks included: `provision.yml` and `deploy.yml`.
