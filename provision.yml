@@ -2,7 +2,7 @@
 - hosts: webservers
   vars_files:
   - vars/defaults.yml
-  - vars/{{app_name}}.yml
+  - "{{config}}"
   become: true
   roles:
   - webapp
@@ -22,7 +22,7 @@
 - hosts: db
   vars_files:
   - vars/defaults.yml
-  - vars/{{app_name}}.yml
+  - "{{config}}"
   become: true
   roles:
   - db

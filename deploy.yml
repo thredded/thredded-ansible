@@ -1,8 +1,8 @@
 # Run this playbook as the app-specific remote user
 - hosts: webservers
   vars_files:
-    - vars/defaults.yml
-    - vars/{{app_name}}.yml
+  - vars/defaults.yml
+  - "{{config}}"
   remote_user: "{{app_user}}"
   roles:
   - role: deploy-rails

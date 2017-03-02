@@ -105,7 +105,7 @@ vagrant up
 Then, **provision** the VM instance:
 
 ```bash
-ansible-playbook provision.yml -e "app_name=$APP" -u ubuntu --private-key=.vagrant/machines/vm1/virtualbox/private_key
+ansible-playbook provision.yml -e "config=vars/${APP}.yml" -u ubuntu --private-key=.vagrant/machines/vm1/virtualbox/private_key
 ```
 
 *If you get an SSH error, verify that you can
@@ -136,7 +136,7 @@ Now, add the app user SSH key to the app's Git repository deploy keys.
 Then, **deploy** to the VM instance:
 
 ```bash
-ansible-playbook deploy.yml -e "app_name=$APP"
+ansible-playbook deploy.yml -e "config=vars/${APP}.yml"
 ```
 
 This will run the migrations, but you might also want to seed the database
@@ -162,7 +162,7 @@ is logged to `/var/log/syslog`.
 Update the `vars/$APP.yml` file and either do a full deploy, or run:
 
 ```bash
-ansible-playbook deploy.yml -e "app_name=$APP" --tags env
+ansible-playbook deploy.yml -e "config=vars/${APP}.yml" --tags env
 ```
 
 The command above will only update the environment and then restart the app.

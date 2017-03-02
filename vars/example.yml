@@ -1,3 +1,6 @@
+# App name is used as the Linux username, the database user name, etc...
+app_name: [SET ME] myapp
+
 # Rails app codebase repository
 app_repo_url: "[SET ME] git@gitlab.com:user/app.git"
 
