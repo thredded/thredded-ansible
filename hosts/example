@@ -1,0 +1,7 @@
+prod1 ansible_host=[SET ME to the server IP] ansible_python_interpreter=/usr/bin/python3
+
+[webservers]
+prod1
+
+[db]
+prod1

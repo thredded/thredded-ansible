@@ -38,12 +38,9 @@
   register: ruby_is_installed
   changed_when: ruby_is_installed.stdout != ruby_version
 
-- name: Ensure ruby {{ruby_version}} is installed
+- name: Ensure ruby {{ruby_version}} is installed (this might take a while)
   shell: cd; bash -lc 'MAKEOPTS="{{ruby_makeopts}}" CONFIGURE_OPTS="--disable-install-rdoc" rbenv install {{ruby_version}}'
   when: ruby_is_installed.stdout != ruby_version
-  # 30 minutes to compile ruby from source should be enough for any machine / VM
-  async: 1650
-  poll: 3
 
 - name: Ensure the bundler gem is installed for the new ruby
   shell: cd; bash -lc "rbenv local {{ruby_version}} && gem install bundler"

@@ -5,16 +5,13 @@ for deploying a Thredded app to an Ubuntu 16.04 server.
 
 **Warning: Experimental, there be dragons.**
 
-The playbooks have only been tested on a VM. They provide a good starting
-point if you're looking to deploy Thredded to a VPS or to a bare-metal server.
+These playbooks provide a good starting point if you're looking to deploy
+Thredded to a VPS or to a bare-metal server.
 
 TODO:
 
-1. Backups via [backup](https://github.com/backup/backup).
-2. Memcached.
-3. Fail if nginx config is invalid.
-4. nginx SSL template.
-5. VPS/bare-metal instructions.
+1. Memcached.
+2. Production setup: HTTPS, email via postfix, backups via [backup](https://github.com/backup/backup).
 
 ## Overview
 
@@ -149,15 +146,137 @@ ansible 'webservers[0]' -u $APP -a "chdir=/var/www/$APP/current bundle exec rail
 Congratulations! You can now open the app at http://localhost:8080 and log in as
 `admin@$APP.com` with password `123456`.
 
+## Deploying to production
+
+The guide describes provisioning deploying to a single production server.
+
+The process is largely identical to deploying to Vagrant, but we will also:
+
+1. Enable HTTPS. **TODO**
+2. Enable daily database backups using [backup]. **TODO**
+3. Configure the [postfix] mail transfer agent to send email. **TODO**
+
+This guide focuses on the differences from the VirtualBox guide above and
+assumes that you have already followed the VirtualBox guide.
+
+[backup]: https://github.com/backup/backup
+[postfix]: http://www.postfix.org/
+
+### Adding the server to the hosts inventory
+
+First, we need to create the hosts inventory file for our production hosts:
+
+1. Copy the example hosts file:
+
+   ```bash
+   cp hosts/example hosts/${APP}-prod
+   ```
+
+2. Set the host IP address in the `hosts/${APP}-prod` file.
+
+We will need to tell Ansible to use this inventory file by passing
+`-i hosts/${APP}-prod` to every `ansible` and `ansible-playbook` command.
+Alternatively, you can change the default inventory file in `ansible.cfg`.
+
+### Creating a user for provisioning
+
+If you've created a new server with something like [Scaleway](https://scaleway.com)
+(offers a 3 € a month VPS large enough for Thredded) then the server by default
+will only have a root user with SSH key authentication, so you can skip this step.
+
+**If** you do not have password-less SSH-as-root, or you'd prefer to not use
+the root user (e.g. if you work in a team), you can create another user instead
+like this:
+
+1. Create a user with the same name as your local user on the production servers.
+   Omit the `password` argument if you're sure you'll never lose your SSH key.
+
+   ```bash
+   ansible all -i hosts/${APP}-prod -u root -m user -a \
+     "name=$USER groups=sudo password=$(mkpasswd --method=sha-512)"
+   ```
+
+2. Authorize your SSH key to connect as `$USER`:
+
+   ```bash
+   ansible all -i hosts/${APP}-prod -u root -m authorized_key -a \
+     "user=$USER key={{lookup('file', '~/.ssh/id_rsa.pub')}}"
+   ```
+
+3. Allow the newly created user to run `sudo` **without password**:
+
+   ```bash
+   ansible all -i hosts/${APP}-prod -u root -m lineinfile -a \
+     "path=/etc/sudoers.d/$USER create=yes line='$USER ALL=(ALL) NOPASSWD:ALL' validate='/usr/sbin/visudo -cf %s'"
+   ```
+
+4. Pass `-u $USER` instead of `-u root` to Ansible in the
+   *Provisioning* commands below.
+
+### Provisioning
+
+Copy the vars config file you've created earlier for Vagrant, as we'll need the
+configuration to be slightly different (we'll change it afterwards).
+
+```bash
+cp vars/${APP}.yml vars/${APP}-prod.yml
+```
+
+You may want to change all the passwords and the secret key in the new config.
+
+Then, run the provisioning playbook:
+
+```bash
+ansible-playbook provision.yml -u root -e "config=vars/${APP}-prod.yml" -i hosts/${APP}-prod
+```
+
+### Deploying
+
+1. Add the SSH key of the app user to your git repository deploy keys.
+   To print the key, run:
+
+   ```bash
+   ansible webservers -i hosts/${APP}-prod -u $APP -a 'cat ~/.ssh/id_rsa.pub'
+   ```
+
+2. Run the deployment playbook:
+
+   ```bash
+   ansible-playbook deploy.yml -i hosts/${APP}-prod -e "config=vars/${APP}-prod.yml"
+   ```
+
+3. Seed the database:
+
+   ```bash
+   ansible 'webservers[0]' -i hosts/${APP}-prod -u $APP -a "chdir=/var/www/$APP/current bundle exec rails db:seed"
+   ```
+
+Congratulations! You can now open the app at the server's IP and log in as
+`admin@$APP.com` with password `123456`. Change the password immediately.
+
+### Configure HTTPS
+
+TODO
+
+### Enable backups
+
+TODO
+
+### Configure postfix
+
+TODO
+
 ## How to
 
-### See the logs
+### Deploy a new version of the app to the production server
 
-The application and webserver logs are located at `/var/www/$APP/shared/log`.
-The app service output (such as errors when starting the services)
-is logged to `/var/log/syslog`.
+Run the deployment playbook:
 
-### Update app environment variables
+```bash
+ansible-playbook deploy.yml -i hosts/${APP}-prod -e "config=vars/${APP}-prod.yml"
+```
+
+### Update the app's environment variables
 
 Update the `vars/$APP.yml` file and either do a full deploy, or run:
 
@@ -170,7 +289,22 @@ The command above will only update the environment and then restart the app.
 **NB**: Removing an environment variable from `vars/$APP.yml` does **not**
 remove it from the environment file on the server (`~$APP/.pam_environment`).
 
+### See the logs
+
+The application and webserver logs are located at `/var/www/$APP/shared/log`.
+The app service output (such as errors when starting the services)
+is logged to `/var/log/syslog`.
+
 ### Open a `rails console` on a production server
+
+In production:
+
+```bash
+# Replace "${IP}" with the server's IP address
+ssh ${APP}@${IP} -t "cd /var/www/$APP/current && bundle exec rails c"
+```
+
+On VirtualBox:
 
 ```bash
 ssh $APP@127.0.0.1 -p 2222 -t "cd /var/www/$APP/current && bundle exec rails c"
@@ -178,7 +312,7 @@ ssh $APP@127.0.0.1 -p 2222 -t "cd /var/www/$APP/current && bundle exec rails c"
 
 #### Tips
 
-You can ssh into the VM instance on port 2222:
+You can ssh into the VirtualBox instance on port 2222:
 
 ```bash
 # As the "ubuntu" user (this user can run sudo without a password)
@@ -187,7 +321,7 @@ ssh ubuntu@127.0.0.1 -p2222 -i .vagrant/machines/vm1/virtualbox/private_key
 ssh $APP@127.0.0.1 -p2222
 ```
 
-You can run a command as the web user via ansible like this:
+You can run a command as the web user via Ansible like this:
 
 ```bash
 # Use webservers[0] for just one of the servers

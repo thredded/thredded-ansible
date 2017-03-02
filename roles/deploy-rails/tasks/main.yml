@@ -50,18 +50,17 @@
     force: yes
   with_items: "{{linked_dirs}}"
 
-- name: Run Bundler
+- name: Run Bundler (this might take a while)
   command: bundle install -j2 --path {{bundle_dir|quote}} --deployment --without development test
   register: bundler_out
   changed_when: "'Installing' in bundler_out or 'Updating' in bundler_out or 'upgrade' in bundler_out"
   args:
     chdir: "{{build_dir}}"
 
-- name: Compile the assets
+- name: Compile the assets (this might take a while)
   command: bundle exec rails assets:precompile
   args:
     chdir: "{{build_dir}}"
-
 
 - name: Run migrations
   command: bundle exec rails db:migrate

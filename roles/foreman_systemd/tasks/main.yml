@@ -7,13 +7,15 @@
   become: true
 
 - name: ensure foreman config is the latest
+  tags: procfile
   template: src={{foreman_procfile_template}} dest={{foreman_procfile}}
   notify:
   - export foreman config
 
 - name: ensure {{app_user}} is allowed to restart its foreman-exported services
   lineinfile:
-    dest: /etc/sudoers
+    dest: /etc/sudoers.d/{{app_user}}
+    create: true
     line: '{{item}}'
     validate: '/usr/sbin/visudo -cf %s'
   become: true
