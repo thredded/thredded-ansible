@@ -12,6 +12,7 @@ TODO:
 
 1. Memcached.
 2. Production setup: HTTPS, email via postfix, backups via [backup](https://github.com/backup/backup).
+3. Start the app's services on reboot.
 
 ## Table of Contents
 
