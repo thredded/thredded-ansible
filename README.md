@@ -35,7 +35,7 @@ TODO:
    * [Update the app's environment variables](#update-the-apps-environment-variables)
    * [See the logs](#see-the-logs)
    * [Open a rails console on a production server](#open-a-rails-console-on-a-production-server)
-      * [Tips](#tips)
+* [Tips](#tips)
 * [Credits](#credits)
 
 ## Overview
@@ -335,7 +335,7 @@ On VirtualBox:
 ssh $APP@127.0.0.1 -p 2222 -t "cd /var/www/$APP/current && bundle exec rails c"
 ```
 
-#### Tips
+## Tips
 
 You can ssh into the VirtualBox instance on port 2222:
 
