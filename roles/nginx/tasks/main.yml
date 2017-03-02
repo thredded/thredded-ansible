@@ -28,3 +28,5 @@
   with_items: "{{nginx_sites}}"
   notify:
   - reload nginx
+
+- meta: flush_handlers

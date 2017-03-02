@@ -12,6 +12,8 @@
   notify:
   - export foreman config
 
+- meta: flush_handlers
+
 - name: ensure {{app_user}} is allowed to restart its foreman-exported services
   lineinfile:
     dest: /etc/sudoers.d/{{app_user}}
