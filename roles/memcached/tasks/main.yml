@@ -1,0 +1,21 @@
+- name: Ensure memcached is installed
+  apt:
+    name: memcached
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  register: memcached_install
+
+- name: Ensure memcached config is up to date
+  template:
+    src: files/memcached.conf.j2
+    dest: "{{memcached_config_file}}"
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart memcached
+
+- meta: flush_handlers
+
+- name: Ensure memcached is started and set to run on startup
+  service: name=memcached state=started enabled=yes

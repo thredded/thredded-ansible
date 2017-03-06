@@ -11,8 +11,10 @@ linked_dirs:
 # Keep only the last 5 releases
 keep_releases: 5
 app_user_env_defaults:
-  DATABASE_URL: "postgresql://{{db_user}}:{{db_user_password|urlencode}}@{{db_host}}/{{db_name}}"
-  RACK_ENV: production
-  RAILS_ENV: production
   ANSIBLE_PROVISIONED: true
   APP_DIR: "{{app_dir}}"
+  APP_ID: "{{app_name}}"
+  DATABASE_URL: "postgresql://{{db_user}}:{{db_user_password|urlencode}}@{{db_host}}/{{db_name}}"
+  MEMCACHE_SERVERS: "{{memcached_host}}:{{memcached_port}}"
+  RACK_ENV: production
+  RAILS_ENV: production

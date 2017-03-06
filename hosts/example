@@ -5,3 +5,9 @@ prod1
 
 [db]
 prod1
+
+[memcached]
+prod1
+
+[postfix]
+prod1

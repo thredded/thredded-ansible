@@ -10,9 +10,8 @@ Thredded to a VPS or to a bare-metal server.
 
 TODO:
 
-1. Memcached.
-2. Production setup: HTTPS, email via postfix, backups via [backup](https://github.com/backup/backup).
-3. Start the app's services on reboot.
+1. Production setup: HTTPS, email via postfix, backups via [backup](https://github.com/backup/backup).
+2. Start the app's services on reboot (need to add a custom foreman template).
 
 ## Table of Contents
 
@@ -329,6 +328,12 @@ In production:
 ssh ${APP}@${IP} -t "cd /var/www/$APP/current && bundle exec rails c"
 ```
 
+To print a server IP address / hostname:
+
+```bash
+ansible 'webservers[0]' -i hosts/${APP}-prod -m debug -a 'var=ansible_host' | grep -oE "[0-9.]{2,}"
+```
+
 On VirtualBox:
 
 ```bash
@@ -346,7 +351,7 @@ ssh ubuntu@127.0.0.1 -p2222 -i .vagrant/machines/vm1/virtualbox/private_key
 ssh $APP@127.0.0.1 -p2222
 ```
 
-You can run a command as the web user via Ansible like this:
+To run a command as the web user via Ansible:
 
 ```bash
 # Use webservers[0] for just one of the servers
@@ -361,3 +366,4 @@ pass the `-vvv` flag to `ansible` or `ansible-playbook`.
 * The Rails deployment role is based on: https://github.com/nicolai86/ansible-rails-deployment.
 * Rbenv installation is based on: https://github.com/erasme/ansible-rbenv.
 * The Nginx role is based on: https://github.com/jdauphant/ansible-role-nginx.
+* The Memcached role is based on: https://github.com/geerlingguy/ansible-role-memcached.

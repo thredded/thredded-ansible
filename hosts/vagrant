@@ -5,3 +5,6 @@ vm1
 
 [db]
 vm1
+
+[memcached]
+vm1

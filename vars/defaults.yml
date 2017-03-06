@@ -12,3 +12,6 @@ app_nginx_template: files/webapp-nossl.jinja2.nginx
 db_name: "{{app_name}}"
 db_user: "{{app_name}}_prod"
 db_host: 127.0.0.1
+
+memcached_host: 127.0.0.1
+memcached_port: 11211

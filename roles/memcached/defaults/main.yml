@@ -1,0 +1,14 @@
+memcached_config_file: /etc/memcached.conf
+memcached_user: memcache
+
+memcached_port: 11211
+memcached_listen_ip: 127.0.0.1
+
+memcached_memory_limit_mb: 64
+memcached_max_connections: 1024
+
+memcached_log_file: /var/log/memcached.log
+
+# verbose is '-v', very verbose is '-vv'
+memcached_log_verbosity: ''
+

@@ -26,3 +26,11 @@
   become: true
   roles:
   - db
+
+- hosts: memcached
+  vars_files:
+  - vars/defaults.yml
+  - "{{config}}"
+  become: true
+  roles:
+  - memcached
