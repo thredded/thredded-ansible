@@ -56,6 +56,10 @@ Via the `webapp` role:
 Via the `db` role:
 * The Postgresql database server is set up and has a user for the app.
 
+Via the `memcached` role:
+* The memcached server is set up (by default, on the same machine(s) as
+  the webserver(s)).
+
 Via the `nginx` role:
 * The nginx webserver is set up and the app's site configuration is up to date.
 
