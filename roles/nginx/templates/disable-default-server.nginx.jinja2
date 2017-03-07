@@ -1,0 +1,25 @@
+# {{ansible_managed}}
+
+# By default, nginx will server non-matching hostnames to a random host.
+# Prevent this by including a default_server that always closes the connection.
+server {
+    listen [::]:80 default_server;
+    listen 80 default_server;
+    # An invalid hostname that matches nothing:
+    server_name _;
+    # 444 is an nginx-specific code that closes the connection.
+    return 444;
+}
+
+server {
+  listen [::]:443 ssl default_server;
+  listen 443 ssl default_server;
+  # For SSL there is no easy way to do this.
+  # A work-around as per https://trac.nginx.org/nginx/ticket/195 is to specify
+  # an unsatisfiable cipher specification:
+  ssl_ciphers aNULL;
+  # Any certificate will work here, but we still
+  ssl_certificate /etc/ssl/certs/ssl-cert-snakeoil.pem;
+  ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;
+  return 444;
+}

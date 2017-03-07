@@ -13,3 +13,9 @@ db_user_password: "[SET ME] the app Postgres user password"
 app_user_env:
   SECRET_KEY_BASE: "[SET ME] a long random string"
   # Add other env variables here and they'll be made available to the app
+
+# app_host: "[SET ME] your-domain.com"
+#
+# HTTPS with Let's Encrypt:
+# letsencrypt: true
+# app_nginx_template: files/webapp-letsencrypt.nginx.jinja2

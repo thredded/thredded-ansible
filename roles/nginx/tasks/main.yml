@@ -1,8 +1,11 @@
-- name: ensure nginx latest is installed
+- name: ensure the latest nginx and other role dependencies are installed
   tags: nginx
-  apt: name=nginx state=latest update_cache=yes cache_valid_time=3600
+  apt: name="{{item}}" state=latest update_cache=yes cache_valid_time=3600
   notify:
   - restart nginx
+  with_items:
+  - nginx
+  - ssl-cert
 
 - name: ensure the default nginx site config is absent
   tags: nginx
@@ -14,7 +17,7 @@
   template:
     src: "{{item.template}}"
     dest: "/etc/nginx/sites-available/{{item.name}}.conf"
-    validate: bash -c 'nginx -t -c /dev/stdin <<<"events {worker_connections 1;} http { include %s; }"'
+    validate: "{{nginx_validate}}"
   with_items: "{{nginx_sites}}"
   notify:
   - reload nginx
@@ -26,6 +29,25 @@
     src: "/etc/nginx/sites-available/{{item.name}}.conf"
     dest: "/etc/nginx/sites-enabled/{{item.name}}.conf"
   with_items: "{{nginx_sites}}"
+  notify:
+  - reload nginx
+
+- name: ensure server_tokens are disabled
+  tags: nginx
+  template:
+    src: templates/disable-server-tokens.nginx.jinja2
+    dest: /etc/nginx/conf.d/disable-server-tokens.conf
+    validate: "{{nginx_validate}}"
+  notify:
+    - reload nginx
+
+- name: ensure default_server matching is disabled (when app_host is set)
+  tags: nginx
+  when: app_host is defined
+  template:
+    src: templates/disable-default-server.nginx.jinja2
+    dest: /etc/nginx/conf.d/disable-default-server.conf
+    validate: "{{nginx_validate}}"
   notify:
   - reload nginx
 

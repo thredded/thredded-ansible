@@ -1,0 +1,17 @@
+# {{ansible_managed}}
+server {
+    listen [::]:80;
+    listen 80;
+    server_name {{letsencrypt_cert_domains|join(' ')}};
+
+    location /.well-known/acme-challenge {
+        root {{letsencrypt_webroot_path}};
+        try_files $uri $uri/ =404;
+    }
+
+    # Redirect all other requests to https://{{letsencrypt_cert_domains[0]}}.
+    location / {
+        add_header Strict-Transport-Security max-age=15768000;
+        return 301 https://{{letsencrypt_cert_domains[0]}}$request_uri;
+    }
+}

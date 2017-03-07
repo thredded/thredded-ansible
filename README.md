@@ -10,8 +10,9 @@ Thredded to a VPS or to a bare-metal server.
 
 TODO:
 
-1. Production setup: HTTPS, email via postfix, backups via [backup](https://github.com/backup/backup).
-2. Start the app's services on reboot (need to add a custom foreman template).
+1. Email via postfix.
+2. Backups via [backup](https://github.com/backup/backup).
+3. Start the app's services on reboot (need to add a custom foreman template).
 
 ## Table of Contents
 
@@ -86,9 +87,28 @@ These playbooks work out of the box with apps created with
 thredded_create_app v0.1.8+.
 
 If your app was created with an older version of thredded_create_app,
-or was not created with thredded_create_app, you'll need to copy the latest
-[config/puma.production.rb](https://raw.githubusercontent.com/thredded/thredded_create_app/master/lib/thredded_create_app/tasks/production_configs/puma.production.rb)
-file for this to work.
+or was not created with thredded_create_app, you'll need to:
+
+1. Copy the [config/puma.production.rb](https://raw.githubusercontent.com/thredded/thredded_create_app/master/lib/thredded_create_app/tasks/production_configs/puma.production.rb) file.
+2. Add the following snippet to the `config/environments/production.rb` file:
+   ```ruby
+   if ENV['MEMCACHE_SERVERS']
+     config.cache_store = :dalli_store,
+         ENV['MEMCACHE_SERVERS'].split(','), {
+             namespace: ENV['APP_ID'] || raise("ENV['APP_ID'] not set"),
+             socket_timeout: 1.5,
+             socket_failure_delay: 0.2,
+             down_retry_delay: 60,
+             pool_size: [2, ENV.fetch('WEB_CONCURRENCY', 3).to_i *
+                            ENV.fetch('MAX_THREADS', 5).to_i].max
+         }
+   end
+   ```
+3. Ensure that the `config/database.yml` file uses `ENV['DATABASE_URL']` in production, i.e.:
+  ```yaml
+  production:
+    url: <%= ENV['DATABASE_URL'].inspect if ENV['DATABASE_URL'] %>
+  ```
 
 ## Usage
 
@@ -180,7 +200,7 @@ The guide describes provisioning deploying to a single production server.
 
 The process is largely identical to deploying to Vagrant, but we will also:
 
-1. Enable HTTPS. **TODO**
+1. Enable HTTPS via letsencrypt with automated certificate renewal.
 2. Enable daily database backups using [backup]. **TODO**
 3. Configure the [postfix] mail transfer agent to send email. **TODO**
 
@@ -284,7 +304,26 @@ Congratulations! You can now open the app at the server's IP and log in as
 
 ### Configure HTTPS
 
-TODO
+Next, we will configure HTTPS with Let's Encrypt, including certificate
+auto-renewal.
+
+For this, you will need to have your-domain.com and www.your-domain.com
+configured as the A-records for your server IP.
+
+First, in the `vars/${APP}-prod.yml` file, set the `app_host` and uncomment the
+*HTTPS with Let's encrypt* section.
+
+Then, run the provisioning playbook:
+
+```bash
+ansible-playbook provision.yml -u root -e "config=vars/${APP}-prod.yml" -i hosts/${APP}-prod
+```
+
+That's it! Verify that `https://your-domain.com` works and that these variations
+all redirect to that URL: `http://your-domain.com`, `http://www.your-domain.com`,
+and `https://www.your-domain.com`.
+
+Test the quality of your HTTPS configuration at [SSL Labs](https://ssllabs.com/ssltest/).
 
 ### Enable backups
 
@@ -371,3 +410,7 @@ pass the `-vvv` flag to `ansible` or `ansible-playbook`.
 * Rbenv installation is based on: https://github.com/erasme/ansible-rbenv.
 * The Nginx role is based on: https://github.com/jdauphant/ansible-role-nginx.
 * The Memcached role is based on: https://github.com/geerlingguy/ansible-role-memcached.
+* The Nginx HTTPS config is based on: http://stackoverflow.com/a/41948807/181228
+* Let's encrypt HTTPS certs and auto-renewal are based on:
+  * https://github.com/thefinn93/ansible-letsencrypt
+  * https://gist.github.com/mattiaslundberg/ba214a35060d3c8603e9b1ec8627d349

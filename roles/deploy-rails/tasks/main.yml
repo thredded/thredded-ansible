@@ -2,7 +2,7 @@
 - include: rbenv-ruby.yml
   vars:
     ruby_version: "{{app_ruby_version}}"
-    ruby_makeopts: '-j $(getconf _NPROCESSORS_ONLN)'
+    ruby_cflags: "-march=native -O3 -fomit-frame-pointer -fno-fast-math -pipe"
 
 - name: create {{app_name}} Rails app directories shared across versions
   file:

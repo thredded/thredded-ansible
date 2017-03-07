@@ -1,0 +1,41 @@
+- name: Ensure the latest letsencrypt and other role dependencies are installed
+  apt: name={{item}} state=latest update_cache=yes cache_valid_time=3600
+  with_items:
+  - letsencrypt
+  - openssl
+  - nginx
+
+- name: Create letsencrypt webroot authenticator directory
+  file: name={{letsencrypt_webroot_path}} state=directory
+
+- name: Ensure the default nginx site config is absent
+  file: path=/etc/nginx/sites-enabled/default state=absent
+
+- name: Install an nginx site for letsencrypt requests for {{letsencrypt_cert_domains|join(' ')}}
+  template:
+    src: templates/letsencrypt.nginx.jinja2
+    dest: "/etc/nginx/sites-enabled/letsencrypt-{{letsencrypt_cert_domains[0]}}"
+    validate: bash -c 'nginx -t -c /dev/stdin <<<"events {worker_connections 1;} http { include %s; }"'
+  register: letsencrypt_nginx_site
+
+- name: Reload nginx to activate letsencrypt site
+  service: name=nginx state=reloaded
+  when: letsencrypt_nginx_site.changed
+
+- name: Obtain a letsencrypt certificate if necessary using the webroot authenticator
+  command: "{{letsencrypt_command}} -a webroot --webroot-path {{letsencrypt_webroot_path}} certonly"
+  args:
+    creates: "/etc/letsencrypt/live/{{letsencrypt_cert_domains[0]}}"
+
+- name: Ensure dhparams are generated (this might take a while)
+  command: /usr/bin/openssl dhparam -out /etc/letsencrypt/live/{{letsencrypt_cert_domains[0]}}/dhparams{{letsencrypt_dhparams_size}}.pem {{letsencrypt_dhparams_size}}
+  args:
+    creates: /etc/letsencrypt/live/{{letsencrypt_cert_domains[0]}}/dhparams{{letsencrypt_dhparams_size}}.pem
+
+- name: Ensure letsencrypt renewal cron is set up
+  cron:
+    name: "Let's Encrypt Renewal"
+    day: "{{letsencrypt_renewal_frequency.day}}"
+    hour: "{{letsencrypt_renewal_frequency.hour}}"
+    minute: "{{letsencrypt_renewal_frequency.minute}}"
+    job: "{{letsencrypt_bin}} renew --quiet {{letsencrypt_renewal_command_args}}"

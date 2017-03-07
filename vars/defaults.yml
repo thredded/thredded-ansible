@@ -7,7 +7,10 @@ app_nginx_name: "{{app_name}}"
 app_host: null
 
 app_procfile_template: files/Procfile.jinja2
-app_nginx_template: files/webapp-nossl.jinja2.nginx
+
+app_nginx_template: files/webapp-nossl.nginx.jinja2
+# Only used by the files/webapp-letsencrypt.nginx.jinja2 template:
+app_nginx_content_security_policy: "default-src *; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; img-src * data:;"
 
 db_name: "{{app_name}}"
 db_user: "{{app_name}}_prod"
@@ -15,3 +18,5 @@ db_host: 127.0.0.1
 
 memcached_host: 127.0.0.1
 memcached_port: 11211
+
+letsencrypt: false

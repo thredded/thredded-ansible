@@ -39,7 +39,7 @@
   changed_when: ruby_is_installed.stdout != ruby_version
 
 - name: Ensure ruby {{ruby_version}} is installed (this might take a while)
-  shell: cd; bash -lc 'MAKEOPTS="{{ruby_makeopts}}" CONFIGURE_OPTS="--disable-install-rdoc" rbenv install {{ruby_version}}'
+  shell: cd; bash -lc 'RUBY_CFLAGS="{{ruby_cflags}}" CONFIGURE_OPTS="--disable-install-rdoc" rbenv install {{ruby_version}}'
   when: ruby_is_installed.stdout != ruby_version
 
 - name: Ensure the bundler gem is installed for the new ruby

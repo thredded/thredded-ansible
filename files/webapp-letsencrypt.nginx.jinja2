@@ -1,0 +1,110 @@
+# {{ansible_managed}}
+
+upstream puma {
+  server "unix://{{app_dir}}/shared/tmp/sockets/puma.sock";
+}
+
+# HTTP to HTTPS redirects are managed by ./letsencrypt-{{app_host}}
+
+# Anti DDoS
+# limit_req_zone $http_x_forwarded_for zone=antiddos:10m rate=10r/s;
+
+server {
+  # Apply anti DDoS zone
+  # limit_req zone=antiddos burst=20;
+
+  listen [::]:443 ssl http2;
+  listen 443 ssl http2;
+  server_name {{app_host|mandatory}};
+  # Can't use gzip over TLS
+  gzip off;
+
+  ssl_certificate         /etc/letsencrypt/live/{{app_host}}/fullchain.pem;
+  ssl_certificate_key     /etc/letsencrypt/live/{{app_host}}/privkey.pem;
+  ssl_trusted_certificate /etc/letsencrypt/live/{{app_host}}/fullchain.pem;
+
+  ## SSL configuration based on http://stackoverflow.com/a/41948807/181228:
+  # Key exchange
+  # ssllabs.com score 90:
+  ssl_dhparam             /etc/letsencrypt/live/{{app_host}}/dhparams2048.pem;
+  ## Score 100 but takes about an hour to generate:
+  # ssl_dhparam           /etc/letsencrypt/live/{{app_host}}/dhparams4096.pem;
+  ssl_ecdh_curve          secp384r1;
+
+  # Protocol support:
+  # ssllabs.com score 95:
+  ssl_protocols TLSv1.2 TLSv1.1 TLSv1;
+  ## Score 100 but less compatible:
+  # ssl_protocols TLSv1.2;
+
+  # Cipher Strength - see https://wiki.mozilla.org/Security/Server_Side_TLS#Recommended_configurations
+  ssl_prefer_server_ciphers on;
+  # ssllabs.com score 90:
+  ssl_ciphers ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA:!DSS;
+  ## Score 100 but less compatible:
+  # ssl_ciphers AES256+EECDH:AES256+EDH:!aNULL; # Score=100
+
+  # OCSP stapling
+  ssl_stapling on;
+  ssl_stapling_verify on;
+  resolver 8.8.8.8 8.8.4.4 valid=600s;
+  resolver_timeout 10s;
+
+  # ssllabs.com A+ - Enable HSTS on all subdomains
+  add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+  # add_header Strict-Transport-Security "max-age=0; includeSubDomains"; # Delete browser cached HSTS policy (i.e. turn HSTS off)
+
+  # THE PRELOAD DIRECTIVE WILL HAVE SEMI-PERMANENT CONSEQUENCE AND IS IRREVERSIBLE - DO NOT USE UNTIL FULLY TESTED AND YOU UNDERSTAND WHAT YOU ARE DOING!
+  # add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+
+  # Enable SSL session caching:
+  # ssllabs.com might report:
+  #  Session resumption (caching) No (IDs assigned but not accepted)
+  # However, the above is a false positive due to the fact that we disable
+  # the default server and require SNI.
+  ssl_session_cache   shared:SSL:32m;
+  ssl_session_timeout 2h;
+  ## End of SSL configuration
+
+  # Other security configuration:
+  add_header X-Frame-Options DENY;
+  add_header X-Content-Type-Options nosniff;
+  add_header Content-Security-Policy "{{app_nginx_content_security_policy}}";
+
+  client_max_body_size 10M;
+  keepalive_timeout 70; # seconds. connections are super cheap in nginx.
+
+  if ($host = 'www.{{app_host}}') {
+    return 301 https://{{app_host}}$request_uri;
+  }
+
+  root "{{app_dir}}/current/public";
+  access_log "{{app_dir}}/shared/log/nginx.access.log";
+  error_log "{{app_dir}}/shared/log/nginx.error.log" info;
+
+  location ^~ /assets/ {
+    gzip_static on;
+    expires max;
+    add_header Cache-Control public;
+  }
+
+  # Favicon (no gzip)
+  location = /favicon.ico {
+    expires    60d;
+    add_header Cache-Control public;
+    access_log off;
+  }
+
+  try_files $uri @puma;
+  location @puma {
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header Host $host;
+    proxy_redirect off;
+
+    proxy_pass http://puma;
+  }
+
+  error_page 500 502 503 504 /500.html;
+}

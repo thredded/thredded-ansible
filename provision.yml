@@ -6,6 +6,12 @@
   become: true
   roles:
   - webapp
+  - role: letsencrypt
+    when: letsencrypt
+    letsencrypt_cert_domains:
+    - "{{app_host}}"
+    - "www.{{app_host}}"
+    letsencrypt_email: "admin@{{app_host}}"
   - role: nginx
     nginx_sites:
     - template: "{{app_nginx_template}}"

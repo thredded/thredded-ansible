@@ -4,11 +4,23 @@ upstream puma {
   server "unix://{{app_dir}}/shared/tmp/sockets/puma.sock";
 }
 
+{% if app_host is defined %}
+# Redirect www to non-www
 server {
-  listen 80 deferred{{ '' if app_host else ' default_server'}};
+  listen [::]:80;
+  listen 80;
+  server_name www.{{app_host}};
+  add_header Strict-Transport-Security max-age=15768000;
+  return 301 https://{{app_host}}$request_uri;
+}
+
+{% endif %}
+server {
+  listen [::]:80{{'' if app_host else ' default_server'}};
+  listen 80{{'' if app_host else ' default_server'}};
 
   {% if app_host %}
-    server_name {{app_host}};
+  server_name {{app_host}};
   {% endif %}
 
   root "{{app_dir}}/current/public";

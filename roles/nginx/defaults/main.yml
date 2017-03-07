@@ -1,0 +1,1 @@
+nginx_validate: bash -c 'nginx -t -c /dev/stdin <<<"events {worker_connections 1;} http { include %s; }"'
