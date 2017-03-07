@@ -94,6 +94,7 @@ If your app was created with an older version of thredded_create_app,
 or was not created with thredded_create_app, you'll need to:
 
 1. Copy the [config/puma.production.rb](https://raw.githubusercontent.com/thredded/thredded_create_app/master/lib/thredded_create_app/tasks/production_configs/puma.production.rb) file.
+
 2. Add the following snippet to the `config/environments/production.rb` file:
    ```ruby
    if ENV['MEMCACHE_SERVERS']
@@ -108,6 +109,7 @@ or was not created with thredded_create_app, you'll need to:
          }
    end
    ```
+
 3. Ensure that the `config/database.yml` file uses `ENV['DATABASE_URL']` in production, i.e.:
   ```yaml
   production:
