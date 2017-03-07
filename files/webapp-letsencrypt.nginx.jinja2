@@ -72,7 +72,8 @@ server {
   add_header Content-Security-Policy "{{app_nginx_content_security_policy}}";
 
   client_max_body_size 10M;
-  keepalive_timeout 70; # seconds. connections are super cheap in nginx.
+  proxy_http_version 1.1;
+  keepalive_timeout 120s;
 
   if ($host = 'www.{{app_host}}') {
     return 301 https://{{app_host}}$request_uri;
