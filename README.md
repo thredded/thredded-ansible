@@ -311,7 +311,7 @@ Congratulations! You can now open the app at the server's IP and log in as
 Next, we will configure HTTPS with Let's Encrypt, including certificate
 auto-renewal.
 
-For this, you will need to have your-domain.com and www.your-domain.com
+For this, you will need to have `{{app_host}}` and `www.{{app_host}}`
 configured as the A-records for your server IP.
 
 First, in the `vars/${APP}-prod.yml` file, set the `app_host` and uncomment the
@@ -323,9 +323,9 @@ Then, run the provisioning playbook:
 ansible-playbook provision.yml -u root -e "config=vars/${APP}-prod.yml" -i hosts/${APP}-prod
 ```
 
-That's it! Verify that `https://your-domain.com` works and that these variations
-all redirect to that URL: `http://your-domain.com`, `http://www.your-domain.com`,
-and `https://www.your-domain.com`.
+That's it! Verify that `https://{{app_host}}` works, and that these variations
+all redirect to that URL: `http://{{app_host}}`, `http://www.{{app_host}}`,
+and `https://www.{{app_host}}`.
 
 Test the quality of your HTTPS configuration at [SSL Labs](https://ssllabs.com/ssltest/).
 
