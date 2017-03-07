@@ -88,7 +88,7 @@ compiles the assets, runs the migrations, and restarts the app services.
 ### App compatibility
 
 These playbooks work out of the box with apps created with
-thredded_create_app v0.1.8+.
+[thredded_create_app](https://github.com/thredded/thredded_create_app) v0.1.10+.
 
 If your app was created with an older version of thredded_create_app,
 or was not created with thredded_create_app, you'll need to:
