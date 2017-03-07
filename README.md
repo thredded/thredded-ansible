@@ -69,6 +69,10 @@ Via the `foreman_systemd` role:
   is exported via [foreman](http://ddollar.github.io/foreman/) from `files/Procfile`.
 * The app-specific user has permissions to start and stop app services.
 
+Via the `letsencrypt` role (production only):
+* Let's Encrypt is configured to provide and automatically renew the SSL
+  certificate for the app's webserver.
+
 ### Deployment
 
 The deployment playbook is run as the app-specific user.
