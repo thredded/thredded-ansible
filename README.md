@@ -12,7 +12,6 @@ TODO:
 
 1. Email via postfix.
 2. Backups via [backup](https://github.com/backup/backup).
-3. Start the app's services on reboot (need to add a custom foreman template).
 
 ## Table of Contents
 

@@ -11,6 +11,7 @@
   template: src={{foreman_procfile_template}} dest={{foreman_procfile}}
   notify:
   - export foreman config
+  - enable {{foreman_app}} systemd services
 
 - meta: flush_handlers
 

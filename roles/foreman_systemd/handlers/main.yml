@@ -11,6 +11,12 @@
   notify:
   - reload systemd
 
+- name: enable {{foreman_app}} systemd services
+  command: systemctl enable /etc/systemd/system/{{foreman_app}}.target
+  args:
+    creates: "/etc/systemd/system/multi-user.target.wants/{{foreman_app}}.target"
+  become: true
+
 - name: reload systemd
   command: systemctl daemon-reload
   become: true
