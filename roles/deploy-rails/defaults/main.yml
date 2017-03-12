@@ -14,6 +14,7 @@ app_user_env_defaults:
   ANSIBLE_PROVISIONED: true
   APP_DIR: "{{app_dir}}"
   APP_ID: "{{app_name}}"
+  APP_HOST: "{{app_host}}"
   DATABASE_URL: "postgresql://{{db_user}}:{{db_user_password|urlencode}}@{{db_host}}/{{db_name}}"
   MEMCACHE_SERVERS: "{{memcached_host}}:{{memcached_port}}"
   RACK_ENV: production

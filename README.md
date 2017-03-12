@@ -28,7 +28,7 @@ TODO:
    * [Deploying](#deploying)
    * [Configure HTTPS](#configure-https)
    * [Enable backups](#enable-backups)
-   * [Configure postfix](#configure-postfix)
+   * [Configure outgoing email (SMTP)](#configure-outgoing-email-smtp)
 * [How to](#how-to)
    * [Deploy a new version of the app to the production server](#deploy-a-new-version-of-the-app-to-the-production-server)
    * [Update the app's environment variables](#update-the-apps-environment-variables)
@@ -334,9 +334,47 @@ Test the quality of your HTTPS configuration at [SSL Labs](https://ssllabs.com/s
 
 TODO
 
-### Configure postfix
+### Configure outgoing email (SMTP)
 
-TODO
+You'll also need to configure your app to send email correctly.
+
+One way to do this is by using a 3-rd party SMTP server such as GMail or Zoho.
+
+GMail requires a paid Google Apps for Business suite for use with a custom
+domain, while [Zoho](https://www.zoho.com/) is free.
+
+Once you configure your domain with Zoho, here is the email configuration
+you can put in `config/environments/production.rb`:
+
+```ruby
+config.action_mailer.default_url_options = { host: ENV['APP_HOST'] }
+config.action_mailer.perform_deliveries = true
+config.action_mailer.raise_delivery_errors = true
+config.action_mailer.delivery_method = :smtp
+config.action_mailer.smtp_settings = {
+  address:                'smtp.zoho.com',
+  port:                   587,
+  domain:                 ENV['APP_HOST'],
+  user_name:              ENV['SMTP_USER'],
+  password:               ENV['SMTP_PASSWORD'],
+  authentication:         :plain,
+  enable_starttls_auto:   true,
+}
+```
+
+You also need to set `Thredded.email_from` in the Thredded initializer,
+and `config.mailer_sender` in the devise initializer.
+
+Then, set `SMTP_USER/PASSWORD` under `app_user_env` in `vars/${APP}-prod` and deploy.
+
+**NB:** Many VPS hosting providers, such as Scaleway and DigitalOcean, block
+outgoing connections to 587 by default. Make sure to change this in the settings.
+For Scaleway, see [this FAQ entry](https://www.scaleway.com/faq/server/network/#-I-cannot-send-any-email).
+
+Zoho free tier is limited to 1,000 emails sent per day (up to 5,000 on paid plans),
+while GMail is limited to [2,000 / day](https://support.google.com/a/answer/166852?hl=en),
+so you will want to use a specialized service like [Mailgun](https://www.mailgun.com/),
+or host your own server once you exceed that. **TODO: Postfix role.**
 
 ## How to
 

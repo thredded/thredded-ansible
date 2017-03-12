@@ -13,6 +13,8 @@ db_user_password: "[SET ME] the app Postgres user password"
 app_user_env:
   SECRET_KEY_BASE: "[SET ME] a long random string"
   # Add other env variables here and they'll be made available to the app
+  # SMTP_USER: "no-reply@{{app_host}}"
+  # SMTP_PASSWORD: "[SET ME]"
 
 # app_host: "[SET ME] your-domain.com"
 #
