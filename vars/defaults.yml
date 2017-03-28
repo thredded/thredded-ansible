@@ -1,7 +1,7 @@
 app_user: "{{app_name}}"
 app_dir: "/var/www/{{app_name}}"
 app_repo_branch: master
-app_ruby_version: 2.4.0
+app_ruby_version: 2.4.1
 
 app_nginx_name: "{{app_name}}"
 app_host: null
