@@ -1,7 +1,12 @@
+# Ubuntu 16.04 does not come with a sufficiently recent version of certbot
+# Use the official PPA instead:
+- apt_repository:
+    repo: 'ppa:certbot/certbot'
+
 - name: Ensure the latest letsencrypt and other role dependencies are installed
   apt: name={{item}} state=latest update_cache=yes cache_valid_time=3600
   with_items:
-  - letsencrypt
+  - certbot
   - openssl
   - nginx
 

@@ -1,4 +1,4 @@
-letsencrypt_bin: /usr/bin/letsencrypt
+letsencrypt_bin: /usr/bin/certbot
 letsencrypt_rsa_key_size: 4096
 letsencrypt_dhparams_size: 2048
 letsencrypt_email: "admin@{{letsencrypt_cert_domains[0]}}"
