@@ -3,6 +3,7 @@
   vars:
     ruby_version: "{{app_ruby_version}}"
     ruby_cflags: "-march=native -O3 -fomit-frame-pointer -fno-fast-math -pipe"
+    ruby_configure_opts: "--with-jemalloc"
 
 - name: create {{app_name}} Rails app directories shared across versions
   file:

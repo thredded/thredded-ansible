@@ -42,6 +42,7 @@
   - libffi-dev
   - libgdbm-dev
   - libgmp-dev
+  - libjemalloc-dev
   - libncurses5-dev
   - libpq-dev
   - libreadline6-dev
