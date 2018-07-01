@@ -1,7 +1,7 @@
-# Ansible Playbooks for running a Thredded App on Ubuntu 16.04
+# Ansible Playbooks for running a Thredded App on Ubuntu 18.04
 
 This is a starter set of [Ansible](https://www.ansible.com/) playbooks
-for deploying a Thredded app to an Ubuntu 16.04 server.
+for deploying a Thredded app to an Ubuntu 18.04 server.
 
 **Warning: Experimental, there be dragons.**
 

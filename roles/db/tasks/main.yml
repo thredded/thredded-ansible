@@ -5,8 +5,7 @@
     update_cache: yes
     cache_valid_time: 3600
   with_items:
-  - postgresql-9.5
-  - postgresql-contrib-9.5
+  - postgresql-10
   # Required by the postgresql_* Ansible tasks:
   - libpq-dev
   - python3-psycopg2
